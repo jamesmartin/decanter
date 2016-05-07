@@ -29,7 +29,8 @@
   (let [[opts args banner] (apply cli args arg-defs)]
     (when (or (:help opts)
               (missing-required? opts))
-      (println banner))
+      (println banner)
+      (System/exit 1))
     (println (str "Username: " (:username opts))))
 
   "I don't do a whole lot ... yet."
