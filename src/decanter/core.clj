@@ -6,8 +6,8 @@
 (defn wine-xchange-url [] "https://www.wine-xchange.com.au")
 
 (def arg-defs [["-h" "--help" "Print this help" :default false :flag true]
-               ["-u" "--username" :default false :flag false]
-               ["-p" "--password" :default false :flag false]])
+               ["-u" "--username" "Required" :default false :flag false]
+               ["-p" "--password" "Required" :default false :flag false]])
 
 (def required-opts #{:username :password})
 (defn missing-required?
