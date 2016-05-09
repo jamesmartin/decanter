@@ -25,6 +25,26 @@
       (catch Exception e (str "homepage unavailable: " (.getMessage e))))
     ))
 
+(use 'hickory.core)
+(require '[hickory.select :as s])
+
+(defn login-inputs [response]
+  (let [login-page (-> response :body parse as-hickory)]
+    (-> (s/select (s/child (s/id :login) (s/tag :input)) login-page))
+    )
+  )
+
+(defn request-verification-token [inputs]
+  (:value (:attrs (first (filter (fn [el] (== 0 (compare "__RequestVerificationToken" (:name (:attrs el))))) inputs))))
+  )
+
+(defn login-test []
+  (try
+    (let [response (http/get (str (wine-xchange-url) "/Login/login"))]
+      (str "Login Request Token: " (request-verification-token (login-inputs response))))
+    (catch Exception e (str "/Login unavailable: " (.getMessage e))))
+  )
+
 (defn -main [& args]
   (let [[opts args banner] (apply cli args arg-defs)]
     (when (or (:help opts)
@@ -34,4 +54,5 @@
     (println (str "Username: " (:username opts))))
 
   "I don't do a whole lot ... yet."
-  (println (homepage-test)))
+  (println (homepage-test))
+  (println (login-test)))
