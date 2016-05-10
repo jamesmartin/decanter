@@ -46,13 +46,14 @@
   )
 
 (defn -main [& args]
+  "Entry point. Checks args, connectivity, syncs and queries."
   (let [[opts args banner] (apply cli args arg-defs)]
     (when (or (:help opts)
               (missing-required? opts))
       (println banner)
       (System/exit 1))
-    (println (str "Username: " (:username opts))))
+    (println (str "Username: " (:username opts)))
+    (println (homepage-test))
+    (println (login-test)))
+  )
 
-  "I don't do a whole lot ... yet."
-  (println (homepage-test))
-  (println (login-test)))
