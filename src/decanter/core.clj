@@ -21,8 +21,10 @@
   (if fake-conn? "Fake it 'til you make it..."
     (try
       (let [response (http/get (wine-xchange-url))]
-         (str "Homepage OK: " (:status response)))
-      (catch Exception e (str "homepage unavailable: " (.getMessage e))))
+        (println (str "response: " (:status response)))
+         (if (>= (:status response) 400)
+           :error :ok))
+      (catch Exception e ( :error )))
     ))
 
 (use 'hickory.core)
@@ -38,11 +40,11 @@
   (:value (:attrs (first (filter (fn [el] (== 0 (compare "__RequestVerificationToken" (:name (:attrs el))))) inputs))))
   )
 
-(defn login-test []
+(defn login-test [username password]
   (try
     (let [response (http/get (str (wine-xchange-url) "/Login/login"))]
-      (str "Login Request Token: " (request-verification-token (login-inputs response))))
-    (catch Exception e (str "/Login unavailable: " (.getMessage e))))
+      [:ok {:message (request-verification-token (login-inputs response))}])
+    (catch Exception e [:error {:message (str "/Login unavailable: " (.getMessage e))}]))
   )
 
 (defn -main [& args]
@@ -53,7 +55,15 @@
       (println banner)
       (System/exit 1))
     (println (str "Username: " (:username opts)))
-    (println (homepage-test))
-    (println (login-test)))
+    (if (= :error (homepage-test))
+      (do
+        (println "Homepage unavailable")
+        (System/exit 1))
+      (let [[status value] (login-test (:username opts) (:password opts))]
+        (if (= :error status)
+          (println (str "Problem with login token: " (:message value)))
+          (println (str "Login token OK: " (:message value)))
+        )
+      )))
   )
 
