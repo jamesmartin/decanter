@@ -40,11 +40,18 @@
   (:value (:attrs (first (filter (fn [el] (== 0 (compare "__RequestVerificationToken" (:name (:attrs el))))) inputs))))
   )
 
-(defn login [username password]
+(defn login-request-token []
   (try
     (let [response (http/get (str (wine-xchange-url) "/Login/login"))]
       [:ok {:message (request-verification-token (login-inputs response))}])
     (catch Exception e [:error {:message (str "/Login unavailable: " (.getMessage e))}]))
+  )
+
+(defn login [username password]
+  (let [token (login-request-token)]
+    ;;TODO: use the token to actually POST login details
+    token
+    )
   )
 
 (defn -main [& args]
