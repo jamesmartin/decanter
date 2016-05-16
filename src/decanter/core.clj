@@ -21,7 +21,7 @@
   (if fake-conn? "Fake it 'til you make it..."
     (try
       (let [response (http/get (wine-xchange-url))]
-        (println (str "response: " (:status response)))
+        (println (str "Homepage response: " (:status response)))
          (if (>= (:status response) 400)
            :error :ok))
       (catch Exception e ( :error )))
@@ -40,7 +40,7 @@
   (:value (:attrs (first (filter (fn [el] (== 0 (compare "__RequestVerificationToken" (:name (:attrs el))))) inputs))))
   )
 
-(defn login-test [username password]
+(defn login [username password]
   (try
     (let [response (http/get (str (wine-xchange-url) "/Login/login"))]
       [:ok {:message (request-verification-token (login-inputs response))}])
@@ -59,10 +59,12 @@
       (do
         (println "Homepage unavailable")
         (System/exit 1))
-      (let [[status value] (login-test (:username opts) (:password opts))]
+      (let [[status value] (login (:username opts) (:password opts))]
         (if (= :error status)
-          (println (str "Problem with login token: " (:message value)))
-          (println (str "Login token OK: " (:message value)))
+          (do
+            (println (str "Login FAILED: " (:message value)))
+            (System/exit 1))
+          (println (str "Login OK: " (:message value)))
         )
       )))
   )
